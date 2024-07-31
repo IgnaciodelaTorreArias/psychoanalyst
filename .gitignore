@@ -1,0 +1,15 @@
+# Entorno virtual
+/dist/
+
+__pycache__/
+
+# Datos de prueba
+/Exams/
+/Results/
+*.db
+
+# Packaging
+/python-*-embed-amd64.zip
+/PsychoanalystApp/
+/PsychoanalystApp.zip
+/Psychoanalyst-cache/

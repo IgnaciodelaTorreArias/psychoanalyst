@@ -6,6 +6,7 @@
     <ROW Property="ARPCOMMENTS" Value="Esta base de datos del instalador contiene la lógica y los datos necesarios para instalar [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPCONTACT" Value="ignaciodlta@gmail.com"/>
     <ROW Property="ARPPRODUCTICON" Value="cuy128.exe" Type="8"/>
+    <ROW Property="ARPURLINFOABOUT" Value="https://github.com/IgnaciodelaTorreArias/psychoanalyst"/>
     <ROW Property="Manufacturer" Value="Psychoanalyst"/>
     <ROW Property="ProductCode" Value="2058:{4B67C3D1-8993-4321-9725-2A3FEDB94079} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>

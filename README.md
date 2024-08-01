@@ -29,7 +29,27 @@ Proyecto para análisis de exámenes psicológicos.
 
 ## Installing
 
-TODO: Release
+### Cross-platform
+
+`python -m pip install psychoanalyst`
+
+> Requieres python preinstaled
+
+### Windows
+
+Go to [Releases](https://github.com/IgnaciodelaTorreArias/psychoanalyst/releases) and download/run the `psychoanalyst.msi` file.
+
+## How to launch
+
+### Cross-platform
+
+`python -m psychoanalyst`
+or
+`psychoanalyst`
+
+### Windows
+
+Shortcuts are automatically created by the msi.
 
 ## How to build
 

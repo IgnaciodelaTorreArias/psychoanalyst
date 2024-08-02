@@ -75,8 +75,11 @@ class CategoriaInterpretativaAnalysis(ps.CommonAnalysisPipeline):
             self.interpreter_table = pd.read_csv(self._conversion_table.with_stem("Vocabulario"))
             return super().main()
 
+    @override
+    def _load_additional_data(self) -> None:
+        return None
+
     def _cleaning(self):
-        self.table = self.abstraccion
         self.table = self.table.join(self.vocabulario, how="outer")
 
     def _transformation(self) -> None:
@@ -107,23 +110,22 @@ class CategoriaInterpretativaAnalysis(ps.CommonAnalysisPipeline):
         self.table["Categoría interpretativa"] = self.table["Puntuación estándar"].apply(interpreter)
 
     def main(self) -> dict[str, Any]:
+        analyzed = dict()
+
         abstraccion = self.Abstraccion()
-        self.analyzed.update(abstraccion.main())
+        analyzed.update(abstraccion.main())
         self.abstraccion = abstraccion.table
 
         vocabulario = self.Vocabulario()
-        self.analyzed.update(vocabulario.main())
+        analyzed.update(vocabulario.main())
         self.vocabulario = vocabulario.table
 
-        if any(map(lambda x: "message" in x, self.analyzed.keys())):
+        if any(map(lambda x: "message" in x, analyzed.keys())):
+            self.analyzed[f"message_{self.__class__.__name__}"] = "Uno de los exámenes previos fallo"
             return self.analyzed
+        
         self.interpreter_table = pd.read_csv(self._conversion_table.with_stem("Combinación A"))
         self.interpreter_table2 = pd.read_csv(self._conversion_table.with_stem("Categoría interpretativa"))
-        self._cleaning()
-        self._transformation()
-        self._analysis()
-        self.saver.save(self.table,ps.Specification[str]("Categoría interpretativa"))
-        return self.analyzed
-
-if __name__ == "__main__":
-    print(CategoriaInterpretativaAnalysis().main())
+        
+        ps.DummyLoader.source = abstraccion.table
+        return super().main()

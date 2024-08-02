@@ -130,7 +130,7 @@ class SqliteLoader(Loader[ComparativeSpecification]):
         self._specification = specification
         source = self.source.with_stem(f"{CommonData.year}{CommonData.cycle}")
         if not source.exists():
-            raise LoadError(f"Not found {self.source}")
+            raise LoadError(f"Not found {source}")
         with sqlite3.connect(source) as con:
             self._table = pd.read_sql(self.query.format(semester=CommonData.semester, identifier=self._specification.identifier), con, index_col="hash")
         self._assert_structure()

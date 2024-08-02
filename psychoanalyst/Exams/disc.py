@@ -58,6 +58,3 @@ class DiscAnalysis(ps.CommonAnalysisPipeline):
     def main(self) -> dict[str, Any]:
         self.interpreter_table = pd.read_csv(self._conversion_table.with_stem("DISC"))
         return super().main()
-
-if __name__ == "__main__":
-    print(DiscAnalysis().main())

@@ -70,6 +70,3 @@ class RyffAnalysis(ps.CommonAnalysisPipeline):
         self.interpreter_table = pd.read_csv(self._conversion_table.with_stem("Grado de bienestar psicológico"))
         self.interpreter_table2 = pd.read_csv(self._conversion_table.with_stem("Dominancia"))
         return super().main()
-
-if __name__ == "__main__":
-    print(RyffAnalysis().main())

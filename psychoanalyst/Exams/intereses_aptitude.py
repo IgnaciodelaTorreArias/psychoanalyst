@@ -76,6 +76,3 @@ class InteresesAptitudesAnalysis(ps.CommonAnalysisPipeline):
         self.aptitudes = aptitudes.table
 
         return self.analyzed
-
-if __name__ == "__main__":
-    print(InteresesAptitudesAnalysis().main())

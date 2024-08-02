@@ -54,7 +54,3 @@ class EstresComparison(ps.ComparisonAnalysisPipeline):
             "Incompletitud Estrés"
         ]
     )
-
-if __name__ == "__main__":
-    e = EstresComparison()
-    print(e.main())

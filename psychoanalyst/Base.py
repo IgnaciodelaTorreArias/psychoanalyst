@@ -102,7 +102,11 @@ class CommonAnalysisPipeline(AnalysisPipeline[ExamSpecification]):
         # Replace not completed questions for 0 so they don"t affect the result
         self.table.fillna(0, inplace=True)
         # Convert to integers
-        self.table = self.table.astype("int")
+        try:
+            self.table = self.table.astype("int")
+        except ValueError:
+            # Something different from "-" or a number was in the table
+            raise StructureError("Las respuestas contienen datos extraños, recuerda usar `-` para marcar las preguntas no contestadas todo lo demás debe ser un numero")
 
     @override
     def _transformation(self) -> None:
@@ -124,9 +128,13 @@ class CommonAnalysisPipeline(AnalysisPipeline[ExamSpecification]):
         self.analyzed[f"Incompletitud {self.specification.identifier}"] = sorted(normalized)
 
     def _graph_incompleteness(self) -> None:
+        pat = "^Incompletitud"
+        incompleteness_keys = [ s for s in self.analyzed.keys() if re.match(pat, s) ]
+        if not len(incompleteness_keys):
+            return
         TOTAL: int = reduce(
             lambda cumulative, t: cumulative+t[1],
-            self.analyzed[self.incompleteness_keys[0]],
+            self.analyzed[incompleteness_keys[0]],
             # list[Tuple[float,int]]
             # first element (float): percentage of incompleteness
             # second element (int): number of persons with that percentage of incompleteness
@@ -153,7 +161,7 @@ class CommonAnalysisPipeline(AnalysisPipeline[ExamSpecification]):
                 )/TOTAL*100
                 for Q in (21,41,61,81,101)
             ]
-            for test in self.incompleteness_keys
+            for test in incompleteness_keys
         }
         y_labels = list(quintiles.keys())
         data = np.array(list(quintiles.values()))
@@ -212,8 +220,6 @@ class CommonAnalysisPipeline(AnalysisPipeline[ExamSpecification]):
 
     @override
     def _graph(self) -> None:
-        pat = "^Incompletitud"
-        self.incompleteness_keys = [ s for s in self.analyzed.keys() if re.match(pat, s) ]
         if not CommonData.figures_path.parent.exists():
             CommonData.exception_reporter(SaveError(f"Directory: {CommonData.figures_path.parent} not found"))
             try:
@@ -225,8 +231,7 @@ class CommonAnalysisPipeline(AnalysisPipeline[ExamSpecification]):
                 )
                 # Skip graphs
                 return
-        if len(self.incompleteness_keys):
-            self._graph_incompleteness()
+        self._graph_incompleteness()
         self._graph_alert()
 
     @override

@@ -106,6 +106,7 @@ class Application:
             with dpg.theme_component(dpg.mvAll):
                 dpg.add_theme_color(dpg.mvThemeCol_WindowBg, (240, 245, 250, 255))
                 dpg.add_theme_color(dpg.mvThemeCol_ChildBg, (240, 245, 250, 255))
+                dpg.add_theme_color(dpg.mvThemeCol_ScrollbarBg, (240, 245, 250, 255)) 
                 dpg.add_theme_color(dpg.mvThemeCol_Text, (0, 0, 0, 255))
                 
                 dpg.add_theme_color(dpg.mvThemeCol_FrameBg, (150, 200, 255, 255))
@@ -302,10 +303,9 @@ class Application:
                 Exception("No hay exámenes seleccionados")
             )
             return None
-        analyzed: dict[str, Any] = {}
         for key, configuration in self.configuration.items():
             self.analysis_pipes[key].set_configuration(configuration)
-            analyzed.update(self.analysis_pipes[key].main())
+            self.analysis_pipes[key].main()
         CommonData.progress_reporter("TERMINO EL ANÁLISIS")
 
     def permanent_store(self) -> None:
@@ -325,12 +325,14 @@ class Application:
             if self.analysis_pipes[key].table is None:
                 flag = False
                 CommonData.exception_reporter(
-                    Exception(f"Faltan los datos del examen {key}, vuelve a analizar")
+                    Exception(f"Faltan los datos del examen {key}, vuelve a analizar, o elimina este examen de tu selección")
                 )
-        if flag:
-            for key in to_Store:
-                self.comparison_pipes[key].save_to_sql(self.analysis_pipes[key].table)
-                CommonData.progress_reporter(f"Se almacenaron los datos de {key}")
+        if not flag:
+            return
+        for key in to_Store:
+            self.comparison_pipes[key].save_to_sql(self.analysis_pipes[key].table)
+            self.analysis_pipes[key].table = None # type: ignore
+            CommonData.progress_reporter(f"Se almacenaron los datos de {key}")
         CommonData.progress_reporter("DATOS GUARDADOS PERMANENTEMENTE")
 
     def compare_data(self):
@@ -340,10 +342,9 @@ class Application:
                 Exception("No hay exámenes seleccionados")
             )
             return None
-        analyzed: dict[str, Any] = {}
         for key, configuration in self.configuration.items():
             self.comparison_pipes[key].set_configuration(configuration)
-            analyzed.update(self.comparison_pipes[key].main())
+            self.comparison_pipes[key].main()
         CommonData.progress_reporter("TERMINO LA COMPARACIÓN")
 
 def main():

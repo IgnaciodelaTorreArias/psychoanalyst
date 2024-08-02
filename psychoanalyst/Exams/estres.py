@@ -42,6 +42,11 @@ class EstresAnalysis(ps.CommonAnalysisPipeline):
                 ps.InterpretationTools.interpreter_selector_max,
             )
             self.table["Estrés-T"] = self.table["Estrés"].apply(interpreter)
+            return super()._analysis()
+
+        @override
+        def _graph(self) -> None:
+            return None
 
         @override
         def main(self) -> dict[str, Any]:
@@ -82,6 +87,11 @@ class EstresAnalysis(ps.CommonAnalysisPipeline):
                 ps.InterpretationTools.interpreter_selector_min,
             )
             self.table["ARC-T"] = self.table["ARC"].apply(interpreter)
+            return super()._analysis()
+
+        @override
+        def _graph(self) -> None:
+            return None
 
         @override
         def main(self) -> dict[str,Any]:
@@ -113,6 +123,11 @@ class EstresAnalysis(ps.CommonAnalysisPipeline):
                 ps.InterpretationTools.interpreter_selector_max,
             )
             self.table["Red de apoyo social-T"] = self.table["Red de apoyo social"].apply(interpreter)
+            return super()._analysis()
+
+        @override
+        def _graph(self) -> None:
+            return None
 
         @override
         def main(self) -> dict[str, Any]:
@@ -136,6 +151,11 @@ class EstresAnalysis(ps.CommonAnalysisPipeline):
                 ps.InterpretationTools.interpreter_selector_max,
             )
             self.table["Conducta Tipo A-T"] = self.table["Conducta Tipo A"].apply(interpreter)
+            return super()._analysis()
+
+        @override
+        def _graph(self) -> None:
+            return None
 
         @override
         def main(self) -> dict[str, Any]:
@@ -163,6 +183,11 @@ class EstresAnalysis(ps.CommonAnalysisPipeline):
                 ps.InterpretationTools.interpreter_selector_max,
             )
             self.table["Fuerza cognitiva-T"] = self.table["Fuerza cognitiva"].apply(interpreter)
+            return super()._analysis()
+
+        @override
+        def _graph(self) -> None:
+            return None
 
         @override
         def main(self) -> dict[str, Any]:
@@ -194,6 +219,11 @@ class EstresAnalysis(ps.CommonAnalysisPipeline):
                     ps.InterpretationTools.interpreter_selector_max,
                 )
                 self.table[f"{name}-T"] = self.table[name].apply(interpreter)
+            return super()._analysis()
+
+        @override
+        def _graph(self) -> None:
+            return None
 
         @override
         def main(self) -> dict[str, Any]:
@@ -224,6 +254,11 @@ class EstresAnalysis(ps.CommonAnalysisPipeline):
                 ps.InterpretationTools.interpreter_selector_max,
             )
             self.table["Bienestar psicológico-T"] = self.table["Bienestar psicológico"].apply(interpreter)
+            return super()._analysis()
+
+        @override
+        def _graph(self) -> None:
+            return None
 
         @override
         def main(self) -> dict[str, Any]:
@@ -239,7 +274,7 @@ class EstresAnalysis(ps.CommonAnalysisPipeline):
             return super()._transformation()
 
         @override
-        def _analysis(self) -> None:
+        def _graph(self) -> None:
             return None
 
     @override
@@ -278,23 +313,9 @@ class EstresAnalysis(ps.CommonAnalysisPipeline):
         }
         l_i = list(incompletitudes.keys())
         self.table.loc[:,l_i] = self.table[l_i].fillna(100)
+        self.table["Incompletitud Estrés"] = 0
         for col, val in incompletitudes.items():
-            self.table[col] = self.table[col] * val
-        self.table["Incompletitud Estrés"] = self.table[l_i].sum(axis=1).round(2)
-        # Update incompletitud based on new data
-        for incompletitud in incompletitudes.keys():
-            normalized: list[
-                tuple[
-                    float, # percentage of incompleteness
-                    int # number of persons with that percentage of incompleteness
-                ]
-            ] = [
-                (float(percentage), int(count))
-                for percentage, count in self.table[incompletitud]\
-                    .value_counts().to_dict().items()
-            ]
-            self.analyzed[incompletitud] = sorted(normalized)
-
+            self.table["Incompletitud Estrés"] += self.table[col] * val / 100
         self.table.drop(columns=l_i, inplace=True)
 
     @override
@@ -351,9 +372,7 @@ class EstresAnalysis(ps.CommonAnalysisPipeline):
         self.estrés_8 = estres_8.table
 
         if any(map(lambda x: "message" in x, self.analyzed.keys())):
+            self.analyzed[f"message_{self.__class__.__name__}"] = "Uno de los exámenes previos fallo"
             return self.analyzed
         ps.DummyLoader.source = estres_1.table
         return super().main()
-
-if __name__ == "__main__":
-    print(EstresAnalysis().main())

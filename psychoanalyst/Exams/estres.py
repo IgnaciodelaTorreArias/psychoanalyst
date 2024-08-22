@@ -150,7 +150,7 @@ class EstresAnalysis(ps.CommonAnalysisPipeline):
                 self.interpreter_table["T"],
                 ps.InterpretationTools.interpreter_selector_max,
             )
-            self.table["Conducta Tipo A-T"] = self.table["Conducta Tipo A"].apply(interpreter)
+            self.table["Conducta tipo A-T"] = self.table["Conducta Tipo A"].apply(interpreter)
             return super()._analysis()
 
         @override

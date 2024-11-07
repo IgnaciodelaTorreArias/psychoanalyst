@@ -317,6 +317,14 @@ class EstresAnalysis(ps.CommonAnalysisPipeline):
         for col, val in incompletitudes.items():
             self.table["Incompletitud Estrés"] += self.table[col] * val / 100
         self.table.drop(columns=l_i, inplace=True)
+        rows = self.table.shape[0]
+        for l in  incompletitudes.keys():
+            difference = rows - sum(self.analyzed[l].values())
+            if difference > 0:
+                incomplete_100 = self.analyzed[l].get(100)
+                if not incomplete_100:
+                    incomplete_100 = 0
+                self.analyzed[l][100] = incomplete_100 + difference
 
     @override
     def _analysis(self) -> None:

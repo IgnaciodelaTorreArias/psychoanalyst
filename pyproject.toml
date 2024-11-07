@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "psychoanalyst"
-version = "1.0.0"
+version = "1.1.0"
 description = "Proyecto para análisis de exámenes psicológicos"
 authors = ["Ignacio de la Torre Arias <ignaciodlta@gmail.com>"]
 maintainers = ["Ignacio de la Torre Arias <ignaciodlta@gmail.com>"]

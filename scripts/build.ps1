@@ -16,6 +16,10 @@ if (Test-Path $EmbeddedPython){
     # Start new build
     Expand-Archive $EmbeddedPython -DestinationPath "PsychoanalystApp"
 }
+else{
+    Write-Output "Invalid EmbeddedPython"
+    exit
+}
 $latest = Get-ChildItem .\dist\*.whl | Sort-Object -Descending | Select-Object -First 1
 if ($null -eq $latest) {
     Write-Output "No .whl files found in the dist/ directory."

@@ -101,9 +101,8 @@ class CommonAnalysisPipeline(AnalysisPipeline[ExamSpecification]):
         ).round(2)
         # Replace not completed questions for 0 so they don"t affect the result
         self.table.fillna(0, inplace=True)
-        # Convert to integers
         try:
-            self.table = self.table.astype("int")
+            self.table = self.table.astype("float")
         except ValueError:
             # Something different from "-" or a number was in the table
             raise StructureError("Las respuestas contienen datos extraños, recuerda usar `-` para marcar las preguntas no contestadas todo lo demás debe ser un numero")
@@ -115,31 +114,18 @@ class CommonAnalysisPipeline(AnalysisPipeline[ExamSpecification]):
 
     @override
     def _analysis(self) -> None:
-        normalized: list[
-            tuple[
-                float, # percentage of incompleteness
-                int # number of persons with that percentage of incompleteness
-            ]
-        ] = [
-            (float(percentage), int(count))
-            for percentage, count in self.table[f"Incompletitud {self.specification.identifier}"]\
-                .value_counts().to_dict().items()
-        ]
-        self.analyzed[f"Incompletitud {self.specification.identifier}"] = sorted(normalized)
+        normalized: dict[
+            float, # percentage of incompleteness
+            int # number of persons with that percentage of incompleteness
+        ] = self.table[f"Incompletitud {self.specification.identifier}"].value_counts().to_dict()
+        self.analyzed[f"Incompletitud {self.specification.identifier}"] = normalized
 
     def _graph_incompleteness(self) -> None:
         pat = "^Incompletitud"
         incompleteness_keys = [ s for s in self.analyzed.keys() if re.match(pat, s) ]
         if not len(incompleteness_keys):
             return
-        TOTAL: int = reduce(
-            lambda cumulative, t: cumulative+t[1],
-            self.analyzed[incompleteness_keys[0]],
-            # list[Tuple[float,int]]
-            # first element (float): percentage of incompleteness
-            # second element (int): number of persons with that percentage of incompleteness
-            0
-        )
+        TOTAL: int = sum(self.analyzed[incompleteness_keys[0]].values())
 
         fig, ax = plt.subplots(layout="constrained", figsize=(10, 5))
         labels = [
@@ -156,7 +142,7 @@ class CommonAnalysisPipeline(AnalysisPipeline[ExamSpecification]):
                     quantity for 
                         percentage, # Percentage of incompletitud
                         quantity  # Persons with that percentage
-                    in self.analyzed[test]
+                    in self.analyzed[test].items()
                     if (Q - 21) <= percentage < Q
                 )/TOTAL*100
                 for Q in (21,41,61,81,101)
